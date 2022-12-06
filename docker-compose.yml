@@ -1,0 +1,34 @@
+services:
+  cliente:
+    build: ./python/
+    command: sh -c "sleep 10s ; python3 ./cliente.py"
+    depends_on:
+      - percona
+  
+  percona:
+    image: percona/percona-server:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: percona
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - "8080:80"
+    expose:
+      - "8080"
+    depends_on:
+      - percona
+
+volumes:
+  dbdata:
